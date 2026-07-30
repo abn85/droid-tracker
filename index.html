@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Droid Master Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: rgba(18, 20, 16, 0.9);
+            --border-color: #222222;
+            --text-color: #e8ede0;
+            --accent-color: #e67e22;
+            --accent-glow: rgba(255, 255, 255, 0.9);
+            --header-gradient: linear-gradient(135deg, #e67e22, #95a5a6);
+            --bg-image: url('1000010852.jpg');
+            --bg-overlay: rgba(0, 0, 0, 0.85);
+        }
+
+        body.theme-sith {
+            --bg-color: #000000;
+            --card-bg: rgba(20, 10, 10, 0.9);
+            --border-color: #222222;
+            --text-color: #f5ecec;
+            --accent-color: #e74c3c;
+            --accent-glow: rgba(255, 255, 255, 0.9);
+            --header-gradient: linear-gradient(135deg, #e74c3c, #8e44ad);
+            --bg-image: url('1000010854.jpg');
+            --bg-overlay: rgba(0, 0, 0, 0.9);
+        }
+
+        body.theme-jedi {
+            --bg-color: #000000;
+            --card-bg: rgba(8, 16, 20, 0.9);
+            --border-color: #222222;
+            --text-color: #ecf5f5;
+            --accent-color: #2ecc71;
+            --accent-glow: rgba(255, 255, 255, 0.9);
+            --header-gradient: linear-gradient(135deg, #2ecc71, #3498db);
+            --bg-image: url('1000010853.jpg');
+            --bg-overlay: rgba(0, 0, 0, 0.9);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            padding-bottom: 40px;
+            position: relative;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: color 0.3s ease;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .header-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-icon-container {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 6px auto;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .app-icon-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            background: var(--header-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-rings-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .progress-ring-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 32px;
+            height: 32px;
+        }
+
+        .progress-ring svg {
+            width: 32px;
+            height: 32px;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 3;
+        }
+
+        .progress-ring-bg {
+            stroke: var(--border-color);
+        }
+
+        .progress-ring-fill {
+            stroke: var(--accent-color);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-ring-text {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .progress-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .progress-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #a0aec0;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-values {
+            font-size: 11px;
+            font-weight: 700;
+        }
+                .search-container {
+            margin: 0 auto 10px auto;
+            display: none;
+        }
+
+        #droid-search {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 13px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .tab-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            border: 2px solid transparent;
+            padding: 5px 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #fff;
+            filter: brightness(0.85);
+            text-transform: uppercase;
+        }
+
+        .tab-btn.active {
+            filter: brightness(1.2);
+            transform: translateY(-1px);
+        }
+
+        .btn-common { background-color: #2ecc71; }
+        .btn-rare { background-color: #3498db; }
+        .btn-epic { background-color: #9b59b6; }
+        .btn-legendary { background-color: #e67e22; }
+        .btn-mythic { background-color: #e74c3c; }
+        .btn-iconic { background-color: #f1c40f; color: #1a202c !important; }
+        .btn-rebirth { background-color: #1abc9c; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .droid-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .droid-card.flawless-active {
+            border-color: #ffffff;
+            box-shadow: 0 0 10px var(--accent-glow), inset 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .droid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .droid-name {
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .flawless-toggle-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flawless-icon {
+            width: 22px;
+            height: auto;
+            opacity: 0.3;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .droid-card.flawless-active .flawless-icon {
+            opacity: 1;
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 4px #ffffff);
+        }
+
+        .variant-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+
+        .variant-pill {
+            background-color: #000000;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .variant-pill.active-default { background-color: #4a5568; border-color: #718096; color: #fff; }
+        .variant-pill.active-gold { background-color: #d69e2e; border-color: #f6e05e; color: #1a202c; }
+        .variant-pill.active-diamond { background-color: #3182ce; border-color: #63b3ed; color: #fff; }
+        .variant-pill.active-rainbow { background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); border-color: #fff; color: #1a202c; font-weight: bold; }
+        .variant-pill.active-beskar { background-color: #718096; border-color: #e2e8f0; color: #fff; }
+        .variant-pill.active-galactic { background-color: #805ad5; border-color: #d53f8c; color: #fff; }
+
+        .droid-card.hidden-completed {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <div class="header-actions">
+            <button class="icon-btn" onclick="toggleSearch()" title="Search Droids">🔍</button>
+            <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+        </div>
+
+        <div class="app-icon-container">
+            <img src="icon.png" alt="App Icon">
+        </div>
+        <h1>Droid Tracker</h1>
+
+        <div class="progress-rings-container">
+            <div class="progress-ring-card">
+                <div class="progress-ring">
+                    <svg>
+                        <circle class="progress-ring-bg" cx="16" cy="16" r="13"></circle>
+                        <circle class="progress-ring-fill" id="variants-ring-fill" cx="16" cy="16" r="13" stroke-dasharray="81.68" stroke-dashoffset="81.68"></circle>
+                    </svg>
+                    <div class="progress-ring-text" id="variants-pct">0%</div>
+                </div>
+                <div class="progress-info">
+                    <span class="progress-label">DROIDS</span>
+                    <span class="progress-values" id="progress-counter">0 / 0</span>
+                </div>
+            </div>
+
+            <div class="progress-ring-card">
+                <div class="progress-ring">
+                    <svg>
+                        <circle class="progress-ring-bg" cx="16" cy="16" r="13"></circle>
+                        <circle class="progress-ring-fill" id="flawless-ring-fill" cx="16" cy="16" r="13" stroke-dasharray="81.68" stroke-dashoffset="81.68"></circle>
+                    </svg>
+                    <div class="progress-ring-text" id="flawless-pct">0%</div>
+                </div>
+                <div class="progress-info">
+                    <span class="progress-label">FLAWLESS</span>
+                    <span class="progress-values" id="flawless-counter">0 / 62</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-container" id="search-container-wrapper">
+        <input type="text" id="droid-search" placeholder="Search droids..." oninput="filterDroids(this.value)">
+    </div>
+
+    <div class="tab-container">
+        <button class="tab-btn btn-common active" onclick="switchTab(event, 'commonTab')">COMMON</button>
+        <button class="tab-btn btn-rare" onclick="switchTab(event, 'rareTab')">RARE</button>
+        <button class="tab-btn btn-epic" onclick="switchTab(event, 'epicTab')">EPIC</button>
+        <button class="tab-btn btn-legendary" onclick="switchTab(event, 'legendaryTab')">LEGENDARY</button>
+        <button class="tab-btn btn-mythic" onclick="switchTab(event, 'mythicTab')">MYTHIC</button>
+        <button class="tab-btn btn-iconic" onclick="switchTab(event, 'iconicTab')">ICONIC</button>
+        <button class="tab-btn btn-rebirth" onclick="switchTab(event, 'rebirthTab')">REBIRTH</button>
+    </div>
+        <div id="commonTab" class="tab-content active"><div id="common-container"></div></div>
+    <div id="rareTab" class="tab-content"><div id="rare-container"></div></div>
+    <div id="epicTab" class="tab-content"><div id="epic-container"></div></div>
+    <div id="legendaryTab" class="tab-content"><div id="legendary-container"></div></div>
+    <div id="mythicTab" class="tab-content"><div id="mythic-container"></div></div>
+    <div id="iconicTab" class="tab-content"><div id="iconic-container"></div></div>
+    
+    <div id="rebirthTab" class="tab-content">
+        <h2 style="font-size: 14px; margin-bottom: 8px;">Super Rebirth Tracker</h2>
+        <div class="super-rebirth-card" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="sr-info">
+                <span class="sr-label" style="font-size: 9px; font-weight: bold; color: #a0aec0; text-transform: uppercase; display: block;">Super Rebirths</span>
+                <span class="sr-cycle-display" id="cycle-display" style="font-size: 12px; font-weight: bold;">Current: Cycle 1</span>
+            </div>
+            <div class="sr-control-group" style="display: flex; align-items: center; gap: 6px;">
+                <button class="sr-btn" onclick="adjustSuperRebirth(-1)" style="background: #000000; color: var(--text-color); border: 1px solid var(--border-color); width: 26px; height: 26px; border-radius: 5px; font-weight: bold; cursor: pointer;">-</button>
+                <span class="sr-value" id="sr-count" style="font-size: 13px; font-weight: bold; min-width: 18px; text-align: center;">0</span>
+                <button class="sr-btn" onclick="adjustSuperRebirth(1)" style="background: #000000; color: var(--text-color); border: 1px solid var(--border-color); width: 26px; height: 26px; border-radius: 5px; font-weight: bold; cursor: pointer;">+</button>
+            </div>
+        </div>
+
+        <h2 style="font-size: 14px; margin-bottom: 8px;">Active Cycle Preview</h2>
+        <div class="active-cycle-display-container" style="text-align: center; margin-bottom: 12px;">
+            <img id="active-cycle-img" src="rebirth-1.png" alt="Active Rebirth Cycle" onclick="openLightbox(this)" style="max-width: 100%; max-height: 180px; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer;">
+        </div>
+
+        <h2 style="font-size: 14px; margin-bottom: 8px;">Other Cycles</h2>
+        <div class="image-grid-small" id="other-cycles-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 20px;"></div>
+    </div>
+        <!-- Settings Modal -->
+    <div id="settings-modal" class="lightbox-modal" onclick="closeSettingsOnBackdrop(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;">
+        <div class="settings-content" onclick="event.stopPropagation()" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; width: 85%; max-width: 350px; box-sizing: border-box;">
+            <div class="settings-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 14px;">Settings & Customization</h3>
+                <span class="close-btn-modal" onclick="closeSettings()" style="font-size: 20px; cursor: pointer; color: #a0aec0;">&times;</span>
+            </div>
+
+            <div class="setting-group" style="margin-bottom: 12px;">
+                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">App Theme</h3>
+                <div class="theme-buttons" style="display: grid; grid-template-columns: 1fr; gap: 5px;">
+                    <button class="theme-btn" id="theme-mandalorian" onclick="setTheme('mandalorian')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Mandalorian</button>
+                    <button class="theme-btn" id="theme-sith" onclick="setTheme('sith')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Sith</button>
+                    <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Jedi</button>
+                </div>
+            </div>
+
+            <div class="setting-group" style="margin-bottom: 12px;">
+                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Display Preferences</h3>
+                <div class="setting-row" style="display: flex; justify-content: space-between; align-items: center; background-color: #000000; border: 1px solid var(--border-color); padding: 6px 8px; border-radius: 5px; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: bold;">Hide Completed Droids</span>
+                    <label class="switch" style="position: relative; display: inline-block; width: 32px; height: 18px;">
+                        <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted(this)" style="opacity: 0; width: 0; height: 0;">
+                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #000000; border: 1px solid var(--border-color); transition: .3s; border-radius: 18px;"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-group" style="margin-bottom: 4px;">
+                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Data Management</h3>
+                <div class="backup-actions" style="display: flex; gap: 6px; margin-bottom: 6px;">
+                    <button class="backup-btn" onclick="exportData()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Export Save</button>
+                    <button class="backup-btn" onclick="importData()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Import Save</button>
+                </div>
+                <div class="backup-status-text" id="backup-status-text" style="font-size: 10px; color: #a0aec0; margin-bottom: 6px;">
+                    Last Exported: Never
+                </div>
+                <button class="reset-data-btn" onclick="confirmResetData()" style="width: 100%; padding: 6px; background-color: #e53e3e; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                    Reset All Progress
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox" class="lightbox-modal" onclick="closeLightbox()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;">
+        <span class="close-btn" onclick="closeLightbox()" style="position: absolute; top: 15px; right: 20px; font-size: 30px; color: #fff; cursor: pointer;">&times;</span>
+        <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
+    </div>
+        <script>
+        const APP_VERSION = "2.5.0";
+        if (localStorage.getItem('appVersion') !== APP_VERSION) {
+            localStorage.setItem('appVersion', APP_VERSION);
+            if (!window.location.search.includes('v=')) {
+                window.location.replace(window.location.pathname + '?v=' + Date.now());
+            }
+        }
+
+        const droidsData = {
+            common: ["MOUSE", "PIT", "GONK", "CB", "R3", "R5", "R8", "IMPERIAL PROBE", "B1 BATTLE", "DRK-1 PROBE", "ID10"],
+            rare: ["BDX EXPLORER", "ARG", "SENATE HOVERCAM", "B-U4D", "BAL-CORE", "ROLL-R", "2BB", "A-LT", "R4", "R9", "B1 SECURITY", "NAV-EX", "VECT-ARM", "HOV-R"],
+            epic: ["GROUNDMECH", "LO", "AMP WALKER", "SEN-TRI", "OPTI-POD", "GUNRUNNER", "BB", "R2", "R6", "TRAK-R", "ORB-WALKER", "UTIL-TEC", "B1 HEAVY", "B2 SUPER", "B2 HEAVY", "STRIKE-ORB", "HAUL-R", "LNG-SHOT"],
+            legendary: ["PROTO-ROLLER", "MECHA-DROID", "MONO-WLKR", "BB9", "R7", "B2-RP", "CYCLO-GRAV", "OPTI-STRK"],
+            mythic: ["SNOW MOUSE", "RIC", "LOADLIFTER", "LEP", "RIC-1200", "DRFT-R", "CYCLENS", "MO-TRAK", "TRI-TEK", "IG", "KX"],
+            iconic: ["DJ R-3X", "C-3PO", "BB-8", "CB-23", "R2-D2", "MISTER BONES", "IG-11 MARSHALL", "CHOPPER"]
+        };
+
+        const variants = [
+            { id: 'default', label: 'DEF', class: 'active-default' },
+            { id: 'gold', label: 'GOLD', class: 'active-gold' },
+            { id: 'diamond', label: 'DIA', class: 'active-diamond' },
+            { id: 'rainbow', label: 'RNB', class: 'active-rainbow' },
+            { id: 'beskar', label: 'BSK', class: 'active-beskar' },
+            { id: 'galactic', label: 'GAL', class: 'active-galactic' }
+        ];
+
+        function setTheme(themeName) {
+            document.body.className = '';
+            if (themeName !== 'mandalorian') {
+                document.body.classList.add(`theme-${themeName}`);
+            }
+            localStorage.setItem('appTheme', themeName);
+
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.style.borderColor = 'var(--border-color)');
+            const activeBtn = document.getElementById(`theme-${themeName}`);
+            if (activeBtn) activeBtn.style.borderColor = 'var(--accent-color)';
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('appTheme') || 'mandalorian';
+            setTheme(savedTheme);
+        }
+
+        function toggleHideCompleted(checkbox) {
+            localStorage.setItem('hide-completed', checkbox.checked ? 'true' : 'false');
+            applyHideCompletedFilter();
+        }
+
+        function applyHideCompletedFilter() {
+            const hideCompleted = localStorage.getItem('hide-completed') === 'true';
+            const cards = document.querySelectorAll('.droid-card');
+
+            cards.forEach(card => {
+                let isCompleted = false;
+                const iconicBtn = card.querySelector('.variant-pill[data-key*="iconic"]');
+                
+                if (iconicBtn) {
+                    isCompleted = iconicBtn.classList.contains('active-gold');
+                } else {
+                    const pills = card.querySelectorAll('.variant-pill');
+                    const allPillsChecked = Array.from(pills).every(p => p.classList.contains(p.getAttribute('data-activeclass')));
+                    const isFlawlessActive = card.classList.contains('flawless-active');
+                    isCompleted = allPillsChecked && isFlawlessActive;
+                }
+
+                if (hideCompleted && isCompleted) {
+                    card.classList.add('hidden-completed');
+                } else {
+                    card.classList.remove('hidden-completed');
+                }
+            });
+        }
+
+        function buildTrackers() {
+            for (const [rarity, list] of Object.entries(droidsData)) {
+                const container = document.getElementById(`${rarity}-container`);
+                if (!container) continue;
+
+                list.forEach(droidName => {
+                    const slug = droidName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const card = document.createElement('div');
+                    card.className = 'droid-card';
+                    card.setAttribute('data-search-name', droidName.toLowerCase().replace(/[\s-]/g, ''));
+
+                    if (rarity === 'iconic') {
+                        const iconicKey = `iconic-${slug}-owned`;
+                        const isOwned = localStorage.getItem(iconicKey) === 'true';
+                        const activeClass = isOwned ? 'active-gold' : '';
+
+                        card.innerHTML = `
+                            <div class="droid-header" style="margin-bottom:0;">
+                                <span class="droid-name">${droidName}</span>
+                                <button class="variant-pill ${activeClass}" data-key="${iconicKey}" onclick="toggleIconic(this)">Obtained</button>
+                            </div>
+                        `;
+                    } else {
+                        let variantsHtml = '';
+                        variants.forEach(v => {
+                            const key = `${rarity}-${slug}-${v.id}`;
+                            const isSaved = localStorage.getItem(key) === 'true';
+                            const activeClass = isSaved ? v.class : '';
+                            variantsHtml += `<button class="variant-pill ${activeClass}" data-key="${key}" data-activeclass="${v.class}" onclick="toggleVariant(this)">${v.label}</button>`;
+                        });
+
+                        const flawlessKey = `${rarity}-${slug}-flawless`;
+                        const isFlawless = localStorage.getItem(flawlessKey) === 'true';
+                        if (isFlawless) {
+                            card.classList.add('flawless-active');
+                        }
+
+                        card.innerHTML = `
+                            <div class="droid-header">
+                                <span class="droid-name">${droidName}</span>
+                                <button class="flawless-toggle-btn" data-key="${flawlessKey}" onclick="toggleFlawlessIcon(this)" title="Toggle Flawless">
+                                    <img src="icon-flawless.png" alt="Flawless Icon" class="flawless-icon">
+                                </button>
+                            </div>
+                            <div class="variant-grid">${variantsHtml}</div>
+                        `;
+                    }
+                    container.appendChild(card);
+                });
+            }
+            updateCounters();
+            loadSuperRebirthData();
+            applyHideCompletedFilter();
+        }
+                function toggleSearch() {
+            const searchContainer = document.getElementById('search-container-wrapper');
+            const searchInput = document.getElementById('droid-search');
+            if (searchContainer.style.display === 'block') {
+                searchContainer.style.display = 'none';
+                searchInput.value = '';
+                filterDroids('');
+            } else {
+                searchContainer.style.display = 'block';
+                searchInput.focus();
+            }
+        }
+
+        function filterDroids(query) {
+            const cleanQuery = query.toLowerCase().replace(/[\s-]/g, '').trim();
+            const cards = document.querySelectorAll('.droid-card');
+            
+            if (cleanQuery === '') {
+                cards.forEach(card => card.style.display = 'block');
+                applyHideCompletedFilter();
+                return;
+            }
+
+            document.querySelectorAll('.tab-content:not(#rebirthTab)').forEach(c => c.classList.add('active'));
+            cards.forEach(card => {
+                const searchName = card.getAttribute('data-search-name');
+                card.style.display = (searchName && searchName.startsWith(cleanQuery)) ? 'block' : 'none';
+            });
+        }
+
+        function updateCounters() {
+            let variantObtained = 0;
+            let variantTotal = 0;
+            let flawlessObtained = 0;
+            let flawlessTotal = 62;
+            const circumference = 81.68;
+
+            for (const [rarity, list] of Object.entries(droidsData)) {
+                let categoryObtained = 0;
+                let categoryTotal = 0;
+
+                list.forEach(droidName => {
+                    const slug = droidName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (rarity === 'iconic') {
+                        variantTotal++; categoryTotal++;
+                        if (localStorage.getItem(`iconic-${slug}-owned`) === 'true') {
+                            variantObtained++; categoryObtained++;
+                        }
+                    } else {
+                        variants.forEach(v => {
+                            variantTotal++; categoryTotal++;
+                            if (localStorage.getItem(`${rarity}-${slug}-${v.id}`) === 'true') {
+                                variantObtained++; categoryObtained++;
+                            }
+                        });
+                        categoryTotal++;
+                        if (localStorage.getItem(`${rarity}-${slug}-flawless`) === 'true') {
+                            flawlessObtained++; categoryObtained++;
+                        }
+                    }
+                });
+
+                const tabBtn = document.querySelector(`.btn-${rarity}`);
+                if (tabBtn) {
+                    if (categoryObtained === categoryTotal && categoryTotal > 0) {
+                        tabBtn.style.border = '2px solid #2ecc71';
+                    } else {
+                        tabBtn.style.border = '2px solid transparent';
+                    }
+                }
+            }
+
+            document.getElementById('progress-counter').innerText = `${variantObtained} / ${variantTotal}`;
+            const variantPct = Math.round((variantObtained / variantTotal) * 100);
+            document.getElementById('variants-pct').innerText = `${variantPct}%`;
+            document.getElementById('variants-ring-fill').style.strokeDashoffset = circumference - (circumference * variantPct) / 100;
+
+            document.getElementById('flawless-counter').innerText = `${flawlessObtained} / ${flawlessTotal}`;
+            const flawlessPct = Math.round((flawlessObtained / flawlessTotal) * 100);
+            document.getElementById('flawless-pct').innerText = `${flawlessPct}%`;
+            document.getElementById('flawless-ring-fill').style.strokeDashoffset = circumference - (circumference * flawlessPct) / 100;
+
+            applyHideCompletedFilter();
+        }
+
+        function loadSuperRebirthData() {
+            let srCount = parseInt(localStorage.getItem('super-rebirth-count')) || 0;
+            updateSuperRebirthUI(srCount);
+        }
+
+        function adjustSuperRebirth(amount) {
+            let srCount = parseInt(localStorage.getItem('super-rebirth-count')) || 0;
+            srCount += amount;
+            if (srCount < 0) srCount = 0;
+            localStorage.setItem('super-rebirth-count', srCount);
+            updateSuperRebirthUI(srCount);
+        }
+
+        function updateSuperRebirthUI(srCount) {
+            document.getElementById('sr-count').innerText = srCount;
+            let currentCycle = (srCount % 4) + 1;
+            document.getElementById('cycle-display').innerText = `Current: Cycle ${currentCycle}`;
+            document.getElementById('active-cycle-img').src = `rebirth-${currentCycle}.png`;
+
+            const otherGrid = document.getElementById('other-cycles-grid');
+            otherGrid.innerHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                if (i !== currentCycle) {
+                    const img = document.createElement('img');
+                    img.src = `rebirth-${i}.png`;
+                    img.onclick = function() { openLightbox(this); };
+                    otherGrid.appendChild(img);
+                }
+            }
+        }
+
+        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+        function closeSettingsOnBackdrop(event) { if (event.target.id === 'settings-modal') closeSettings(); }
+
+        function exportData() {
+            const dataObj = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                dataObj[key] = localStorage.getItem(key);
+            }
+            const dataString = btoa(JSON.stringify(dataObj));
+            navigator.clipboard.writeText(dataString).then(() => alert('Save data copied to clipboard!'));
+
+            const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            localStorage.setItem('last-exported', now);
+            updateBackupStatusUI();
+        }
+
+        function importData() {
+            const dataString = prompt('Paste your backup save data string here:');
+            if (!dataString) return;
+            try {
+                const dataObj = JSON.parse(atob(dataString.trim()));
+                localStorage.clear();
+                for (const [key, value] of Object.entries(dataObj)) localStorage.setItem(key, value);
+                location.reload();
+            } catch (e) { alert('Invalid save data string.'); }
+        }
+
+        function updateBackupStatusUI() {
+            const lastExported = localStorage.getItem('last-exported');
+            const statusText = document.getElementById('backup-status-text');
+            if (statusText) {
+                statusText.innerText = lastExported ? `Last Exported: ${lastExported}` : 'Last Exported: Never';
+            }
+        }
+
+        function confirmResetData() {
+            if (confirm("Are you sure you want to reset all your droid progress? This cannot be undone unless you have an exported backup!")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function toggleVariant(btn) {
+            const key = btn.getAttribute('data-key');
+            const activeClass = btn.getAttribute('data-activeclass');
+            if (btn.classList.contains(activeClass)) {
+                btn.classList.remove(activeClass);
+                localStorage.setItem(key, 'false');
+            } else {
+                btn.classList.add(activeClass);
+                localStorage.setItem(key, 'true');
+            }
+            btn.blur();
+            updateCounters();
+        }
+
+        function toggleIconic(btn) {
+            const key = btn.getAttribute('data-key');
+            if (btn.classList.contains('active-gold')) {
+                btn.classList.remove('active-gold');
+                localStorage.setItem(key, 'false');
+            } else {
+                btn.classList.add('active-gold');
+                localStorage.setItem(key, 'true');
+            }
+            btn.blur();
+            updateCounters();
+        }
+
+        function toggleFlawlessIcon(btn) {
+            const card = btn.closest('.droid-card');
+            const key = btn.getAttribute('data-key');
+            card.classList.toggle('flawless-active');
+            const isFlawless = card.classList.contains('flawless-active');
+            localStorage.setItem(key, isFlawless);
+            btn.blur();
+            updateCounters();
+        }
+
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        function openLightbox(element) {
+            document.getElementById('lightbox').style.display = 'flex';
+            document.getElementById('lightbox-img').src = element.src;
+        }
+
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
+
+        window.onload = function() {
+            loadTheme();
+
+            if (localStorage.getItem('hide-completed') === 'true') {
+                const hideToggle = document.getElementById('hide-completed-toggle');
+                if (hideToggle) hideToggle.checked = true;
+            }
+
+            updateBackupStatusUI();
+            buildTrackers();
+        };
+    </script>
+</body>
+</html>
