@@ -198,7 +198,8 @@
             font-size: 11px;
             font-weight: 700;
         }
-                .search-container {
+
+        .search-container {
             margin: 0 auto 10px auto;
             display: none;
         }
@@ -274,8 +275,9 @@
         }
 
         .droid-name {
-            font-weight: bold;
-            font-size: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.5px;
         }
 
         .flawless-toggle-btn {
@@ -327,6 +329,19 @@
 
         .droid-card.hidden-completed {
             display: none !important;
+        }
+
+        .image-grid-small img {
+            width: 100%;
+            max-height: 90px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .image-grid-small img:active {
+            transform: scale(0.96);
         }
     </style>
 </head>
@@ -386,7 +401,8 @@
         <button class="tab-btn btn-iconic" onclick="switchTab(event, 'iconicTab')">ICONIC</button>
         <button class="tab-btn btn-rebirth" onclick="switchTab(event, 'rebirthTab')">REBIRTH</button>
     </div>
-        <div id="commonTab" class="tab-content active"><div id="common-container"></div></div>
+
+    <div id="commonTab" class="tab-content active"><div id="common-container"></div></div>
     <div id="rareTab" class="tab-content"><div id="rare-container"></div></div>
     <div id="epicTab" class="tab-content"><div id="epic-container"></div></div>
     <div id="legendaryTab" class="tab-content"><div id="legendary-container"></div></div>
@@ -415,7 +431,8 @@
         <h2 style="font-size: 14px; margin-bottom: 8px;">Other Cycles</h2>
         <div class="image-grid-small" id="other-cycles-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 20px;"></div>
     </div>
-        <!-- Settings Modal -->
+
+    <!-- Settings Modal -->
     <div id="settings-modal" class="lightbox-modal" onclick="closeSettingsOnBackdrop(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;">
         <div class="settings-content" onclick="event.stopPropagation()" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; width: 85%; max-width: 350px; box-sizing: border-box;">
             <div class="settings-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -428,7 +445,7 @@
                 <div class="theme-buttons" style="display: grid; grid-template-columns: 1fr; gap: 5px;">
                     <button class="theme-btn" id="theme-mandalorian" onclick="setTheme('mandalorian')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Mandalorian</button>
                     <button class="theme-btn" id="theme-sith" onclick="setTheme('sith')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Sith</button>
-                    <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Jedi</button>
+                    <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')" style="background-color: #jedi')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Jedi</button>
                 </div>
             </div>
 
@@ -446,8 +463,10 @@
             <div class="setting-group" style="margin-bottom: 4px;">
                 <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Data Management</h3>
                 <div class="backup-actions" style="display: flex; gap: 6px; margin-bottom: 6px;">
-                    <button class="backup-btn" onclick="exportData()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Export Save</button>
-                    <button class="backup-btn" onclick="importData()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Import Save</button>
+                    <button class="backup-btn" onclick="exportDataFile()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Export Save</button>
+                    <button class="backup-btn" onclick="triggerImportFile()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Import Save</button>
+                    <!-- Hidden file input for native mobile file picker selection -->
+                    <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importDataFile(event)">
                 </div>
                 <div class="backup-status-text" id="backup-status-text" style="font-size: 10px; color: #a0aec0; margin-bottom: 6px;">
                     Last Exported: Never
@@ -464,7 +483,7 @@
         <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
     </div>
         <script>
-        const APP_VERSION = "2.5.0";
+        const APP_VERSION = "2.6.0";
         if (localStorage.getItem('appVersion') !== APP_VERSION) {
             localStorage.setItem('appVersion', APP_VERSION);
             if (!window.location.search.includes('v=')) {
@@ -591,7 +610,8 @@
             loadSuperRebirthData();
             applyHideCompletedFilter();
         }
-                function toggleSearch() {
+
+        function toggleSearch() {
             const searchContainer = document.getElementById('search-container-wrapper');
             const searchInput = document.getElementById('droid-search');
             if (searchContainer.style.display === 'block') {
@@ -711,29 +731,48 @@
         function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
         function closeSettingsOnBackdrop(event) { if (event.target.id === 'settings-modal') closeSettings(); }
 
-        function exportData() {
+        /* Mobile-Friendly File-Based Export */
+        function exportDataFile() {
             const dataObj = {};
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 dataObj[key] = localStorage.getItem(key);
             }
-            const dataString = btoa(JSON.stringify(dataObj));
-            navigator.clipboard.writeText(dataString).then(() => alert('Save data copied to clipboard!'));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "droid-tracker-backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
 
             const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             localStorage.setItem('last-exported', now);
             updateBackupStatusUI();
         }
 
-        function importData() {
-            const dataString = prompt('Paste your backup save data string here:');
-            if (!dataString) return;
-            try {
-                const dataObj = JSON.parse(atob(dataString.trim()));
-                localStorage.clear();
-                for (const [key, value] of Object.entries(dataObj)) localStorage.setItem(key, value);
-                location.reload();
-            } catch (e) { alert('Invalid save data string.'); }
+        /* Mobile-Friendly File-Based Import */
+        function triggerImportFile() {
+            document.getElementById('import-file-input').click();
+        }
+
+        function importDataFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const dataObj = JSON.parse(e.target.result);
+                    localStorage.clear();
+                    for (const [key, value] of Object.entries(dataObj)) {
+                        localStorage.setItem(key, value);
+                    }
+                    location.reload();
+                } catch (err) {
+                    alert('Invalid backup file format.');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function updateBackupStatusUI() {
