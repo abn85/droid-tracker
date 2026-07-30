@@ -12,11 +12,19 @@
             --card-bg: rgba(18, 20, 16, 0.9);
             --border-color: #222222;
             --text-color: #e8ede0;
-            --accent-color: #e67e22;
+            --accent-color: #e67e22; /* Default Orange */
             --accent-glow: rgba(255, 255, 255, 0.9);
             --header-gradient: linear-gradient(135deg, #e67e22, #95a5a6);
-            --bg-image: url('1000010852.jpg');
-            --bg-overlay: rgba(0, 0, 0, 0.85);
+        }
+
+        body.theme-mandalorian {
+            --bg-color: #000000;
+            --card-bg: rgba(16, 18, 22, 0.9);
+            --border-color: #222222;
+            --text-color: #edf2f7;
+            --accent-color: #a0aec0; /* Beskar Silver */
+            --accent-glow: rgba(255, 255, 255, 0.9);
+            --header-gradient: linear-gradient(135deg, #cbd5e0, #4a5568);
         }
 
         body.theme-sith {
@@ -27,8 +35,6 @@
             --accent-color: #e74c3c;
             --accent-glow: rgba(255, 255, 255, 0.9);
             --header-gradient: linear-gradient(135deg, #e74c3c, #8e44ad);
-            --bg-image: url('1000010854.jpg');
-            --bg-overlay: rgba(0, 0, 0, 0.9);
         }
 
         body.theme-jedi {
@@ -39,8 +45,6 @@
             --accent-color: #2ecc71;
             --accent-glow: rgba(255, 255, 255, 0.9);
             --header-gradient: linear-gradient(135deg, #2ecc71, #3498db);
-            --bg-image: url('1000010853.jpg');
-            --bg-overlay: rgba(0, 0, 0, 0.9);
         }
 
         body {
@@ -54,20 +58,6 @@
             min-height: 100vh;
             box-sizing: border-box;
             transition: color 0.3s ease;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), var(--bg-image);
-            background-size: cover;
-            background-position: center;
-            z-index: -1;
-            pointer-events: none;
         }
 
         .app-header {
@@ -346,7 +336,6 @@
             transform: scale(0.96);
         }
 
-        /* Themed Toggle Switch Styles */
         .switch {
             position: relative;
             display: inline-block;
@@ -402,7 +391,7 @@
         </div>
 
         <div class="app-icon-container">
-            <img src="icon.png" alt="App Icon">
+            <img id="app-theme-icon" src="icon.png" alt="App Icon">
         </div>
         <h1>Droid Tracker</h1>
 
@@ -492,6 +481,7 @@
             <div class="setting-group" style="margin-bottom: 12px;">
                 <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">App Theme</h3>
                 <div class="theme-buttons" style="display: grid; grid-template-columns: 1fr; gap: 5px;">
+                    <button class="theme-btn" id="theme-default" onclick="setTheme('default')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Default</button>
                     <button class="theme-btn" id="theme-mandalorian" onclick="setTheme('mandalorian')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Mandalorian</button>
                     <button class="theme-btn" id="theme-sith" onclick="setTheme('sith')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Sith</button>
                     <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Jedi</button>
@@ -531,7 +521,7 @@
         <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
     </div>
         <script>
-        const APP_VERSION = "2.6.2";
+        const APP_VERSION = "2.8.0";
         if (localStorage.getItem('appVersion') !== APP_VERSION) {
             localStorage.setItem('appVersion', APP_VERSION);
             if (!window.location.search.includes('v=')) {
@@ -559,10 +549,23 @@
 
         function setTheme(themeName) {
             document.body.className = '';
-            if (themeName !== 'mandalorian') {
+            if (themeName !== 'default') {
                 document.body.classList.add(`theme-${themeName}`);
             }
             localStorage.setItem('appTheme', themeName);
+
+            const themeIcon = document.getElementById('app-theme-icon');
+            if (themeIcon) {
+                if (themeName === 'sith') {
+                    themeIcon.src = 'icon-sith.png';
+                } else if (themeName === 'jedi') {
+                    themeIcon.src = 'icon-jedi.png';
+                } else if (themeName === 'mandalorian') {
+                    themeIcon.src = 'icon-mandalorian.png';
+                } else {
+                    themeIcon.src = 'icon.png';
+                }
+            }
 
             document.querySelectorAll('.theme-btn').forEach(btn => btn.style.borderColor = 'var(--border-color)');
             const activeBtn = document.getElementById(`theme-${themeName}`);
@@ -570,7 +573,7 @@
         }
 
         function loadTheme() {
-            const savedTheme = localStorage.getItem('appTheme') || 'mandalorian';
+            const savedTheme = localStorage.getItem('appTheme') || 'default';
             setTheme(savedTheme);
         }
 
