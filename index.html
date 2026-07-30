@@ -445,7 +445,7 @@
                 <div class="theme-buttons" style="display: grid; grid-template-columns: 1fr; gap: 5px;">
                     <button class="theme-btn" id="theme-mandalorian" onclick="setTheme('mandalorian')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Mandalorian</button>
                     <button class="theme-btn" id="theme-sith" onclick="setTheme('sith')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Sith</button>
-                    <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')" style="background-color: #jedi')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Jedi</button>
+                    <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Jedi</button>
                 </div>
             </div>
 
@@ -465,7 +465,6 @@
                 <div class="backup-actions" style="display: flex; gap: 6px; margin-bottom: 6px;">
                     <button class="backup-btn" onclick="exportDataFile()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Export Save</button>
                     <button class="backup-btn" onclick="triggerImportFile()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Import Save</button>
-                    <!-- Hidden file input for native mobile file picker selection -->
                     <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importDataFile(event)">
                 </div>
                 <div class="backup-status-text" id="backup-status-text" style="font-size: 10px; color: #a0aec0; margin-bottom: 6px;">
@@ -483,7 +482,7 @@
         <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
     </div>
         <script>
-        const APP_VERSION = "2.6.0";
+        const APP_VERSION = "2.6.1";
         if (localStorage.getItem('appVersion') !== APP_VERSION) {
             localStorage.setItem('appVersion', APP_VERSION);
             if (!window.location.search.includes('v=')) {
@@ -731,7 +730,6 @@
         function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
         function closeSettingsOnBackdrop(event) { if (event.target.id === 'settings-modal') closeSettings(); }
 
-        /* Mobile-Friendly File-Based Export */
         function exportDataFile() {
             const dataObj = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -751,7 +749,6 @@
             updateBackupStatusUI();
         }
 
-        /* Mobile-Friendly File-Based Import */
         function triggerImportFile() {
             document.getElementById('import-file-input').click();
         }
