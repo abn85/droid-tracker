@@ -680,19 +680,26 @@
             const statusText = document.getElementById('deal-status-text');
             const dealObj = data.deal || data;
             
-            // Fixed live deal name extraction to support nested structures or string property fallbacks
-            let newDealName = "Active Deal";
+            let dealName = "Active Deal";
+            let mutationName = "";
+
             if (typeof dealObj === 'string') {
-                newDealName = dealObj;
+                dealName = dealObj;
             } else if (dealObj) {
-                newDealName = dealObj.dealName || dealObj.name || dealObj.title || dealObj.droid || dealObj.droidName || (dealObj.item && (dealObj.item.name || dealObj.item.title)) || "Active Deal";
+                dealName = dealObj.dealName || dealObj.name || dealObj.title || dealObj.droid || dealObj.droidName || (dealObj.item && (dealObj.item.name || dealObj.item.title)) || "Active Deal";
+                
+                // Checks for mutation, variant, skin, or type properties in the API response
+                mutationName = dealObj.mutation || dealObj.variant || dealObj.skin || dealObj.type || (dealObj.item && (dealObj.item.mutation || dealObj.item.variant)) || "";
             }
             
-            if (currentDealData && currentDealData !== newDealName) {
-                triggerDealNotification(newDealName);
+            // Combines the mutation and droid name if a mutation exists (e.g., "Rainbow MONO-WLKR")
+            let fullDealText = mutationName ? `${mutationName} ${dealName}` : dealName;
+            
+            if (currentDealData && currentDealData !== fullDealText) {
+                triggerDealNotification(fullDealText);
             }
-            currentDealData = newDealName;
-            statusText.innerText = `${newDealName}`;
+            currentDealData = fullDealText;
+            statusText.innerText = `${fullDealText}`;
 
             const targetTime = dealObj.endsAt ? new Date(dealObj.endsAt).getTime() : (dealObj.endTime ? new Date(dealObj.endTime).getTime() : (Date.now() + 7200 * 1000));
             startDealCountdown(targetTime);
