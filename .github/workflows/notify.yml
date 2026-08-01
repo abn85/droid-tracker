@@ -1,0 +1,58 @@
+name: Check Droid Deals
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Runs every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  check-deal:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required so the bot can save the last-seen deal cache back to your repo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for Deal Changes and Notify
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Fetch the current deal from the API
+          CURRENT_DEAL=$(curl -s "https://gonk.tools/api/droid-alerts/limited-deal")
+          
+          echo "Fetched Deal: $CURRENT_DEAL"
+          
+          # Path to store the last seen deal inside the workflow runner
+          CACHE_FILE=".last_deal.txt"
+          
+          # Read previous deal if the cache file exists
+          if [ -f "$CACHE_FILE" ]; then
+            PREVIOUS_DEAL=$(cat "$CACHE_FILE")
+          else
+            PREVIOUS_DEAL=""
+          fi
+          
+          # Compare current deal with previous deal
+          if [ "$CURRENT_DEAL" != "$PREVIOUS_DEAL" ]; then
+            echo "Deal changed! Sending notification..."
+            
+            # Send payload to Discord webhook
+            curl -H "Content-Type: application/json" \
+                 -X POST \
+                 -d "{\"content\": \"🚨 **New Droid Deal Alert!** 🚨\n\`\`\`json\n$CURRENT_DEAL\n\`\`\`\"}" \
+                 "$DISCORD_WEBHOOK"
+                 
+            # Save the current deal to the cache file for future comparison
+            echo "$CURRENT_DEAL" > "$CACHE_FILE"
+            
+            # Automatically commit the updated cache back to the repo so it persists across runs
+            git config --global user.name "Deal Bot"
+            git config --global user.email "bot@users.noreply.github.com"
+            git add "$CACHE_FILE"
+            git commit -m "Update last seen deal cache [skip ci]" || true
+            git push || true
+          else
+            echo "No change in deal. Skipping notification."
+          fi
+          
