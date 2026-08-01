@@ -46,7 +46,7 @@
             --accent-glow: rgba(46, 204, 113, 0.4);
             --header-gradient: linear-gradient(135deg, #2ecc71, #3498db);
         }
-                body {
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -230,7 +230,7 @@
             font-size: 13px;
             font-weight: 700;
         }
-                .search-container {
+        .search-container {
             margin: 0 auto 10px auto;
             display: none;
         }
@@ -473,8 +473,7 @@
             </div>
         </div>
     </div>
-
-    <div class="search-container" id="search-container-wrapper">
+        <div class="search-container" id="search-container-wrapper">
         <input type="text" id="droid-search" placeholder="Search droids..." oninput="filterDroids(this.value)">
     </div>
 
@@ -494,8 +493,7 @@
     <div id="legendaryTab" class="tab-content"><div id="legendary-container"></div></div>
     <div id="mythicTab" class="tab-content"><div id="mythic-container"></div></div>
     <div id="iconicTab" class="tab-content"><div id="iconic-container"></div></div>
-    
-    <div id="rebirthTab" class="tab-content">
+        <div id="rebirthTab" class="tab-content">
         <h2 style="font-size: 14px; margin-bottom: 8px;">Super Rebirth Tracker</h2>
         <div class="super-rebirth-card" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
             <div class="sr-info">
@@ -575,8 +573,8 @@
         <span class="close-btn" onclick="closeLightbox()" style="position: absolute; top: 15px; right: 20px; font-size: 30px; color: #fff; cursor: pointer;">&times;</span>
         <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
     </div>
-            <script>
-        const APP_VERSION = "2.8.5";
+        <script>
+        const APP_VERSION = "2.8.6";
         if (localStorage.getItem('appVersion') !== APP_VERSION) {
             localStorage.setItem('appVersion', APP_VERSION);
             if (!window.location.search.includes('v=')) {
@@ -663,23 +661,26 @@
 
         async function fetchGonkDeal() {
             const statusText = document.getElementById('deal-status-text');
-            statusText.innerText = "Fetching live deal...";
+            statusText.innerText = "Connecting...";
+
+            const endpoint = 'https://gonk.tools/api/droid-alerts/limited-deal';
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(endpoint)}`;
 
             try {
-                const response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://gonk.tools/api/droid-alerts/limited-deal'));
-                if (!response.ok) throw new Error('Network response was not ok');
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
                 const data = await response.json();
-                
                 processDealData(data);
             } catch (err) {
-                statusText.innerText = "Retrying deal connection...";
+                statusText.innerText = "Retrying connection...";
                 setTimeout(fetchGonkDeal, 15000);
             }
         }
 
         function processDealData(data) {
             const statusText = document.getElementById('deal-status-text');
-            const newDealName = data.dealName || data.name || data.title || "Limited Droid Deal";
+            const dealObj = data.deal || data;
+            const newDealName = dealObj.dealName || dealObj.name || dealObj.title || "Active Deal";
             
             if (currentDealData && currentDealData !== newDealName) {
                 triggerDealNotification(newDealName);
@@ -687,21 +688,20 @@
             currentDealData = newDealName;
             statusText.innerText = `${newDealName}`;
 
-            const targetTime = data.endTime ? new Date(data.endTime).getTime() : (data.expiresAt ? new Date(data.expiresAt).getTime() : (Date.now() + 7200 * 1000));
+            const targetTime = dealObj.endsAt ? new Date(dealObj.endsAt).getTime() : (dealObj.endTime ? new Date(dealObj.endTime).getTime() : (Date.now() + 7200 * 1000));
             startDealCountdown(targetTime);
         }
 
         function startDealCountdown(targetTimestamp) {
             if (dealTimerInterval) clearInterval(dealTimerInterval);
-
             const timerDisplay = document.getElementById('deal-timer-display');
 
             function updateTimer() {
                 const now = Date.now();
                 const distance = targetTimestamp - now;
 
-                if (distance < 0) {
-                    timerDisplay.innerText = "EXPIRED";
+                if (distance <= 0) {
+                    timerDisplay.innerText = "00:00:00";
                     clearInterval(dealTimerInterval);
                     setTimeout(fetchGonkDeal, 5000);
                     return;
@@ -729,7 +729,9 @@
                 });
             }
         }
-                function isCardFullyCompleted(card) {
+    </script>
+        <script>
+        function isCardFullyCompleted(card) {
             const iconicBtn = card.querySelector('.variant-pill[data-key*="iconic"]');
             if (iconicBtn) {
                 return iconicBtn.classList.contains('active-gold');
@@ -750,7 +752,6 @@
 
             cards.forEach(card => {
                 const completed = isCardFullyCompleted(card);
-                
                 if (completed) {
                     card.classList.add('fully-completed');
                 } else {
@@ -884,11 +885,7 @@
 
                 const tabBtn = document.querySelector(`.btn-${rarity}`);
                 if (tabBtn) {
-                    if (categoryObtained === categoryTotal && categoryTotal > 0) {
-                        tabBtn.style.border = '2px solid #2ecc71';
-                    } else {
-                        tabBtn.style.border = '2px solid transparent';
-                    }
+                    tabBtn.style.border = (categoryObtained === categoryTotal && categoryTotal > 0) ? '2px solid #2ecc71' : '2px solid transparent';
                 }
             }
 
@@ -959,9 +956,7 @@
             updateBackupStatusUI();
         }
 
-        function triggerImportFile() {
-            document.getElementById('import-file-input').click();
-        }
+        function triggerImportFile() { document.getElementById('import-file-input').click(); }
 
         function importDataFile(event) {
             const file = event.target.files[0];
@@ -988,7 +983,6 @@
             if (statusText) {
                 statusText.innerText = lastExported ? `Last Exported: ${lastExported}` : 'Last Exported: Never';
             }
-            
             const notifToggle = document.getElementById('deal-notifications-toggle');
             if (notifToggle) {
                 notifToggle.checked = localStorage.getItem('deal-notifications') === 'true';
@@ -1055,12 +1049,10 @@
 
         window.onload = function() {
             loadTheme();
-
             if (localStorage.getItem('hide-completed') === 'true') {
                 const hideToggle = document.getElementById('hide-completed-toggle');
                 if (hideToggle) hideToggle.checked = true;
             }
-
             updateBackupStatusUI();
             buildTrackers();
             fetchGonkDeal();
