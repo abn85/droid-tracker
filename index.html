@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://gonk.tools; img-src 'self' data: https://cdn.discordapp.com; object-src 'none'; script-src 'self'; style-src 'self' https: 'unsafe-inline'; upgrade-insecure-requests;">
     <title>Droid Master Tracker</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
@@ -535,7 +536,7 @@
         <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
     </div>
         <script>
-        const APP_VERSION = "2.8.4";
+        const APP_VERSION = "2.8.5";
         if (localStorage.getItem('appVersion') !== APP_VERSION) {
             localStorage.setItem('appVersion', APP_VERSION);
             if (!window.location.search.includes('v=')) {
