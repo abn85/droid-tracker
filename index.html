@@ -6,7 +6,7 @@
     <title>Droid Master Tracker</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
-    <style>
+        <style>
         :root {
             --bg-color: #000000;
             --card-bg: rgba(18, 20, 16, 0.9);
@@ -46,7 +46,8 @@
             --accent-glow: rgba(46, 204, 113, 0.4);
             --header-gradient: linear-gradient(135deg, #2ecc71, #3498db);
         }
-                body {
+
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -58,8 +59,7 @@
             box-sizing: border-box;
             transition: color 0.3s ease;
         }
-
-        .app-header {
+                .app-header {
             text-align: center;
             margin-bottom: 12px;
             position: relative;
@@ -229,6 +229,7 @@
             font-size: 13px;
             font-weight: 700;
         }
+
         .search-container {
             margin: 0 auto 10px auto;
             display: none;
@@ -433,7 +434,6 @@
         </div>
         <h1>Droid Tracker</h1>
 
-        <!-- gonk.tools Live Deal Banner -->
         <div class="live-deal-banner">
             <div class="deal-info">
                 <span class="deal-label">gonk.tools Live Deal</span>
@@ -640,9 +640,19 @@
         function toggleDealNotifications(checkbox) {
             if (checkbox.checked) {
                 if ("Notification" in window) {
-                    Notification.requestPermission().then(permission => {
+                    Notification.requestPermission().then(async permission => {
                         if (permission === "granted") {
                             localStorage.setItem('deal-notifications', 'true');
+                            try {
+                                const registration = await navigator.serviceWorker.ready;
+                                const subscription = await registration.pushManager.subscribe({
+                                    userVisibleOnly: true,
+                                    applicationServerKey: "YOUR_VAPID_PUBLIC_KEY"
+                                });
+                                console.log('User subscribed to push:', JSON.stringify(subscription));
+                            } catch (e) {
+                                console.log('Push subscription skipped or not fully configured yet:', e);
+                            }
                         } else {
                             checkbox.checked = false;
                             localStorage.setItem('deal-notifications', 'false');
@@ -687,12 +697,9 @@
                 dealName = dealObj;
             } else if (dealObj) {
                 dealName = dealObj.dealName || dealObj.name || dealObj.title || dealObj.droid || dealObj.droidName || (dealObj.item && (dealObj.item.name || dealObj.item.title)) || "Active Deal";
-                
-                // Checks for mutation, variant, skin, or type properties in the API response
                 mutationName = dealObj.mutation || dealObj.variant || dealObj.skin || dealObj.type || (dealObj.item && (dealObj.item.mutation || dealObj.item.variant)) || "";
             }
             
-            // Combines the mutation and droid name if a mutation exists (e.g., "Rainbow MONO-WLKR")
             let fullDealText = mutationName ? `${mutationName} ${dealName}` : dealName;
             
             if (currentDealData && currentDealData !== fullDealText) {
@@ -742,9 +749,17 @@
                 });
             }
         }
-    </script>
-        <script>
-        function isCardFullyCompleted(card) {
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+                function isCardFullyCompleted(card) {
             const iconicBtn = card.querySelector('.variant-pill[data-key*="iconic"]');
             if (iconicBtn) {
                 return iconicBtn.classList.contains('active-gold');
