@@ -116,7 +116,8 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-                .progress-rings-container {
+
+        .progress-rings-container {
             display: flex;
             justify-content: center;
             gap: 12px;
@@ -239,10 +240,12 @@
         .btn-mythic { background-color: #e74c3c; }
         .btn-iconic { background-color: #f1c40f; color: #1a202c !important; }
         .btn-rebirth { background-color: #1abc9c; }
+        .btn-deal { background-color: #d35400; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-                .droid-card {
+
+        .droid-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -255,10 +258,6 @@
         .droid-card.fully-completed {
             border-color: var(--accent-color);
             box-shadow: 0 0 10px var(--accent-glow), inset 0 0 5px var(--accent-glow);
-        }
-
-        .droid-card.flawless-active {
-            /* Flawless active controls the icon only, no border glow */
         }
 
         .droid-header {
@@ -440,6 +439,7 @@
         <button class="tab-btn btn-mythic" onclick="switchTab(event, 'mythicTab')">MYTHIC</button>
         <button class="tab-btn btn-iconic" onclick="switchTab(event, 'iconicTab')">ICONIC</button>
         <button class="tab-btn btn-rebirth" onclick="switchTab(event, 'rebirthTab')">REBIRTH</button>
+        <button class="tab-btn btn-deal" onclick="switchTab(event, 'dealTab')">LIMITED DEAL</button>
     </div>
 
     <div id="commonTab" class="tab-content active"><div id="common-container"></div></div>
@@ -472,7 +472,15 @@
         <div class="image-grid-small" id="other-cycles-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 20px;"></div>
     </div>
 
-    <!-- Settings Modal -->
+    <!-- Limited Deal Tab -->
+    <div id="dealTab" class="tab-content">
+        <h2 style="font-size: 14px; margin-bottom: 8px;">LIMITED DEAL</h2>
+        <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
+            <div id="deal-info-container" style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">Loading live deal...</div>
+            <div id="deal-timer" style="font-size: 16px; font-weight: 800; color: var(--accent-color);">--:--:--</div>
+        </div>
+    </div>
+        <!-- Settings Modal -->
     <div id="settings-modal" class="lightbox-modal" onclick="closeSettingsOnBackdrop(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;">
         <div class="settings-content" onclick="event.stopPropagation()" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; width: 85%; max-width: 350px; box-sizing: border-box;">
             <div class="settings-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -501,6 +509,17 @@
                 </div>
             </div>
 
+            <div class="setting-group" style="margin-bottom: 12px;">
+                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Notifications</h3>
+                <div class="setting-row" style="display: flex; justify-content: space-between; align-items: center; background-color: #000000; border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 6px; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: bold;">Deal Alert Notifications</span>
+                    <label class="switch">
+                        <input type="checkbox" id="deal-notifications-toggle" onchange="toggleDealNotifications(this)">
+                        <span class="slider"></span>
+                   </label>
+                </div>
+            </div>
+
             <div class="setting-group" style="margin-bottom: 4px;">
                 <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Data Management</h3>
                 <div class="backup-actions" style="display: flex; gap: 6px; margin-bottom: 6px;">
@@ -523,7 +542,7 @@
         <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
     </div>
         <script>
-        const APP_VERSION = "2.8.2";
+        const APP_VERSION = "2.8.3";
         if (localStorage.getItem('appVersion') !== APP_VERSION) {
             localStorage.setItem('appVersion', APP_VERSION);
             if (!window.location.search.includes('v=')) {
@@ -548,6 +567,10 @@
             { id: 'beskar', label: 'BSK', class: 'active-beskar' },
             { id: 'galactic', label: 'GAL', class: 'active-galactic' }
         ];
+
+        let currentDealEndsAt = null;
+        let lastDealSignature = null;
+        let dealTimerInterval = null;
 
         function setTheme(themeName) {
             document.body.className = '';
@@ -578,13 +601,89 @@
             const savedTheme = localStorage.getItem('appTheme') || 'default';
             setTheme(savedTheme);
         }
-
-        function toggleHideCompleted(checkbox) {
+                function toggleHideCompleted(checkbox) {
             localStorage.setItem('hide-completed', checkbox.checked ? 'true' : 'false');
             applyHideCompletedFilter();
         }
 
-        function isCardFullyCompleted(card) {
+        function toggleDealNotifications(checkbox) {
+            if (checkbox.checked) {
+                if (Notification.permission === 'granted') {
+                    localStorage.setItem('deal-notifications', 'true');
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            localStorage.setItem('deal-notifications', 'true');
+                        } else {
+                            checkbox.checked = false;
+                            localStorage.setItem('deal-notifications', 'false');
+                            alert('Notification permission was denied.');
+                        }
+                    });
+                } else {
+                    checkbox.checked = false;
+                    localStorage.setItem('deal-notifications', 'false');
+                    alert('Notifications are blocked in your browser settings.');
+                }
+            } else {
+                localStorage.setItem('deal-notifications', 'false');
+            }
+        }
+
+        function fetchLiveDeal() {
+            fetch('https://gonk.tools/api/droid-alerts/limited-deal')
+                .then(res => res.json())
+                .then(data => {
+                    const deal = data.deal || data;
+                    if (!deal) return;
+
+                    const infoContainer = document.getElementById('deal-info-container');
+                    let dealText = JSON.stringify(deal);
+                    if (deal.mutation) {
+                        dealText = `Active Deal: ${deal.mutation}`;
+                    }
+                    infoContainer.innerText = dealText;
+
+                    currentDealEndsAt = deal.endsAt ? new Date(deal.endsAt).getTime() : null;
+
+                    const newSignature = JSON.stringify(deal);
+                    if (lastDealSignature && lastDealSignature !== newSignature) {
+                        if (localStorage.getItem('deal-notifications') === 'true' && Notification.permission === 'granted') {
+                            new Notification('Limited Deal Changed!', {
+                                body: dealText,
+                                icon: 'icon.png'
+                            });
+                        }
+                    }
+                    lastDealSignature = newSignature;
+                })
+                .catch(err => {
+                    const infoContainer = document.getElementById('deal-info-container');
+                    if (infoContainer) {
+                        infoContainer.innerText = 'Failed to load live deal.';
+                    }
+                });
+        }
+
+        function updateDealTimer() {
+            if (!currentDealEndsAt) return;
+            const now = new Date().getTime();
+            const distance = currentDealEndsAt - now;
+            const timerEl = document.getElementById('deal-timer');
+
+            if (distance < 0) {
+                timerEl.innerText = 'EXPIRED';
+                fetchLiveDeal();
+                return;
+            }
+
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            timerEl.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+                function isCardFullyCompleted(card) {
             const iconicBtn = card.querySelector('.variant-pill[data-key*="iconic"]');
             if (iconicBtn) {
                 return iconicBtn.classList.contains('active-gold');
@@ -619,7 +718,8 @@
                 }
             });
         }
-                function buildTrackers() {
+
+        function buildTrackers() {
             for (const [rarity, list] of Object.entries(droidsData)) {
                 const container = document.getElementById(`${rarity}-container`);
                 if (!container) continue;
@@ -697,14 +797,13 @@
                 return;
             }
 
-            document.querySelectorAll('.tab-content:not(#rebirthTab)').forEach(c => c.classList.add('active'));
+            document.querySelectorAll('.tab-content:not(#rebirthTab):not(#dealTab)').forEach(c => c.classList.add('active'));
             cards.forEach(card => {
                 const searchName = card.getAttribute('data-search-name');
                 card.style.display = (searchName && searchName.startsWith(cleanQuery)) ? 'block' : 'none';
             });
         }
-
-        function updateCounters() {
+                function updateCounters() {
             let variantObtained = 0;
             let variantTotal = 0;
             let flawlessObtained = 0;
@@ -850,8 +949,7 @@
                 location.reload();
             }
         }
-
-        function toggleVariant(btn) {
+                function toggleVariant(btn) {
             const key = btn.getAttribute('data-key');
             const activeClass = btn.getAttribute('data-activeclass');
             if (btn.classList.contains(activeClass)) {
@@ -910,8 +1008,17 @@
                 if (hideToggle) hideToggle.checked = true;
             }
 
+            if (localStorage.getItem('deal-notifications') === 'true') {
+                const notifToggle = document.getElementById('deal-notifications-toggle');
+                if (notifToggle) notifToggle.checked = true;
+            }
+
             updateBackupStatusUI();
             buildTrackers();
+
+            fetchLiveDeal();
+            setInterval(fetchLiveDeal, 30000); // Check every 30 seconds for live updates
+            dealTimerInterval = setInterval(updateDealTimer, 1000);
         };
     </script>
 </body>
