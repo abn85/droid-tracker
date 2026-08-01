@@ -2,544 +2,255 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Droid Master Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Droid Tracker - Star Wars Droid Tycoon</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#121212">
     <style>
         :root {
-            --bg-color: #000000;
-            --card-bg: rgba(18, 20, 16, 0.9);
-            --border-color: #222222;
-            --text-color: #e8ede0;
-            --accent-color: #e67e22; /* Default Orange */
-            --accent-glow: rgba(230, 126, 34, 0.4);
-            --header-gradient: linear-gradient(135deg, #e67e22, #95a5a6);
-        }
-
-        body.theme-mandalorian {
-            --bg-color: #000000;
-            --card-bg: rgba(16, 18, 22, 0.9);
-            --border-color: #222222;
-            --text-color: #edf2f7;
-            --accent-color: #a0aec0; /* Beskar Silver */
-            --accent-glow: rgba(160, 174, 192, 0.4);
-            --header-gradient: linear-gradient(135deg, #cbd5e0, #4a5568);
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --border-color: #333333;
+            --accent-color: #3498db;
+            --tab-bg: #2a2a2a;
         }
 
         body.theme-sith {
-            --bg-color: #000000;
-            --card-bg: rgba(20, 10, 10, 0.9);
-            --border-color: #222222;
-            --text-color: #f5ecec;
+            --bg-color: #0d0d0d;
+            --card-bg: #1a1010;
+            --text-color: #f5e6e6;
+            --border-color: #4a1515;
             --accent-color: #e74c3c;
-            --accent-glow: rgba(231, 76, 60, 0.4);
-            --header-gradient: linear-gradient(135deg, #e74c3c, #8e44ad);
+            --tab-bg: #261212;
         }
 
         body.theme-jedi {
-            --bg-color: #000000;
-            --card-bg: rgba(8, 16, 20, 0.9);
-            --border-color: #222222;
-            --text-color: #ecf5f5;
+            --bg-color: #0f1410;
+            --card-bg: #162018;
+            --text-color: #e6f5ea;
+            --border-color: #1e3b22;
             --accent-color: #2ecc71;
-            --accent-glow: rgba(46, 204, 113, 0.4);
-            --header-gradient: linear-gradient(135deg, #2ecc71, #3498db);
+            --tab-bg: #1b291e;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 10px;
-            padding-bottom: 40px;
-            position: relative;
-            min-height: 100vh;
-            box-sizing: border-box;
-            transition: color 0.3s ease;
+        body.theme-mandalorian {
+            --bg-color: #141310;
+            --card-bg: #1f1c16;
+            --text-color: #f5f0e6;
+            --border-color: #4a3b1e;
+            --accent-color: #e67e22;
+            --tab-bg: #29241b;
         }
 
-        .app-header {
-            text-align: center;
-            margin-bottom: 12px;
-            position: relative;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 12px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
 
-        .header-actions {
-            position: absolute;
-            top: 0;
-            right: 0;
-            display: flex;
-            gap: 6px;
-        }
+        .app-header { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 480px; margin-bottom: 16px; position: relative; }
+        .app-icon { width: 64px; height: 64px; border-radius: 14px; object-fit: cover; margin-bottom: 8px; border: 2px solid var(--border-color); }
+        .app-title { font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #dcdcdc; margin-bottom: 12px; }
 
-        .icon-btn {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .top-action-icons { position: absolute; top: 4px; right: 4px; display: flex; gap: 8px; }
+        .icon-btn { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 10px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-color); font-size: 18px; }
 
-        .app-icon-container {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 6px auto;
-            background-color: var(--card-bg);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
+        .dashboard-container { display: flex; gap: 12px; width: 100%; max-width: 480px; margin-bottom: 16px; }
+        .dashboard-card { flex: 1; background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 14px; padding: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .dashboard-info { display: flex; flex-direction: column; }
+        .dashboard-label { font-size: 11px; font-weight: 700; color: #888; letter-spacing: 0.5px; }
+        .dashboard-value { font-size: 16px; font-weight: 700; color: #fff; margin-top: 2px; }
+        .dashboard-pct { font-size: 12px; color: var(--accent-color); font-weight: 600; margin-top: 2px; }
 
-        .app-icon-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .progress-ring { width: 44px; height: 44px; transform: rotate(-90deg); }
+        .progress-ring-bg { fill: none; stroke: var(--border-color); stroke-width: 4; }
+        .progress-ring-fill { fill: none; stroke: var(--accent-color); stroke-width: 4; stroke-dasharray: 113.1; stroke-dashoffset: 113.1; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
 
-        h1 {
-            font-size: 18px;
-            margin: 0 0 10px 0;
-            background: var(--header-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .tabs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 480px; margin-bottom: 16px; }
+        .tab-btn { border: 2px solid transparent; border-radius: 10px; padding: 10px 0; font-size: 12px; font-weight: 700; color: #fff; cursor: pointer; text-align: center; text-transform: uppercase; transition: transform 0.1s; }
+        .tab-btn:active { transform: scale(0.96); }
 
-        .progress-rings-container {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 4px;
-        }
+        .btn-common { background-color: #27ae60; }
+        .btn-rare { background-color: #2980b9; }
+        .btn-epic { background-color: #8e44ad; }
+        .btn-legendary { background-color: #d35400; }
+        .btn-mythic { background-color: #c0392b; }
+        .btn-iconic { background-color: #f1c40f; color: #121212 !important; }
+        .btn-rebirth { background-color: #16a085; }
+        .btn-deal { background-color: #e67e22; }
 
-        .progress-ring-card {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 10px;
-        }
+        .tab-content { display: none; width: 100%; max-width: 480px; flex-direction: column; gap: 10px; }
+        .tab-content.active { display: flex; }
 
-        .progress-ring {
-            position: relative;
-            width: 44px;
-            height: 44px;
-        }
+        .search-container { width: 100%; max-width: 480px; margin-bottom: 12px; display: none; }
+        .search-input { width: 100%; background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 10px; padding: 10px 14px; color: var(--text-color); font-size: 14px; outline: none; }
+        .search-input:focus { border-color: var(--accent-color); }
+                .droid-card { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+        .droid-card.fully-completed { border-color: #2ecc71; }
+        .droid-card.hidden-completed { display: none !important; }
 
-        .progress-ring svg {
-            width: 44px;
-            height: 44px;
-            transform: rotate(-90deg);
-        }
+        .droid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .droid-name { font-size: 15px; font-weight: 700; color: #fff; }
 
-        .progress-ring circle {
-            fill: none;
-            stroke-width: 4;
-        }
+        .flawless-toggle-btn { background: transparent; border: none; cursor: pointer; padding: 2px; opacity: 0.3; transition: opacity 0.2s; }
+        .droid-card.flawless-active .flawless-toggle-btn { opacity: 1; }
+        .flawless-icon { width: 22px; height: 22px; object-fit: contain; }
 
-        .progress-ring-bg {
-            stroke: var(--border-color);
-        }
+        .variant-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+        .variant-pill { background: #252525; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 0; font-size: 10px; font-weight: 700; color: #777; cursor: pointer; text-align: center; }
 
-        .progress-ring-fill {
-            stroke: var(--accent-color);
-            stroke-linecap: round;
-            transition: stroke-dashoffset 0.5s ease;
-            stroke-dasharray: 113.1;
-        }
+        .variant-pill.active-default { background: #34495e; color: #fff; border-color: #2c3e50; }
+        .variant-pill.active-gold { background: #f39c12; color: #121212; border-color: #d68910; }
+        .variant-pill.active-diamond { background: #00cec9; color: #121212; border-color: #01a3a4; }
+        .variant-pill.active-rainbow { background: linear-gradient(135deg, #ff7675, #ffeaa7, #55efc4, #74b9ff, #a29bfe); color: #121212; border-color: #b2bec3; }
+        .variant-pill.active-beskar { background: #b2bec3; color: #121212; border-color: #636e72; }
+        .variant-pill.active-galactic { background: #6c5ce7; color: #fff; border-color: #4834d4; }
 
-        .progress-ring-text {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 800;
-        }
+        .settings-modal, .lightbox-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        .settings-content { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; width: 100%; max-width: 420px; padding: 20px; display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
+        .settings-header { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 800; color: #fff; }
+        .settings-close { background: transparent; border: none; color: #aaa; font-size: 22px; cursor: pointer; }
 
-        .progress-info {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
+        .settings-section { display: flex; flex-direction: column; gap: 8px; }
+        .settings-section-title { font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; }
+        .theme-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .theme-btn { background: #252525; border: 2px solid var(--border-color); border-radius: 10px; padding: 10px; color: #fff; font-weight: 700; cursor: pointer; text-align: center; font-size: 13px; }
+        
+        .settings-option-row { display: flex; justify-content: space-between; align-items: center; background: #252525; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; color: #fff; }
+        .settings-btn-row { display: flex; gap: 8px; }
+        .settings-action-btn { flex: 1; background: #34495e; border: none; border-radius: 8px; padding: 10px; color: #fff; font-weight: 700; cursor: pointer; font-size: 13px; text-align: center; }
+        .settings-action-btn.danger { background: #c0392b; }
 
-        .progress-label {
-            font-size: 10px;
-            font-weight: bold;
-            color: #a0aec0;
-            letter-spacing: 0.5px;
-        }
-
-        .progress-values {
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .search-container {
-            margin: 0 auto 10px auto;
-            display: none;
-        }
-
-        #droid-search {
-            width: 100%;
-            padding: 8px 12px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--accent-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            font-size: 13px;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .tab-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 10px;
-            justify-content: center;
-        }
-
-        .tab-btn {
-            border: 2px solid transparent;
-            padding: 5px 8px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: bold;
-            color: #fff;
-            filter: brightness(0.85);
-            text-transform: uppercase;
-        }
-
-        .tab-btn.active {
-            filter: brightness(1.2);
-            transform: translateY(-1px);
-        }
-
-        .btn-common { background-color: #2ecc71; }
-        .btn-rare { background-color: #3498db; }
-        .btn-epic { background-color: #9b59b6; }
-        .btn-legendary { background-color: #e67e22; }
-        .btn-mythic { background-color: #e74c3c; }
-        .btn-iconic { background-color: #f1c40f; color: #1a202c !important; }
-        .btn-rebirth { background-color: #1abc9c; }
-        .btn-deal { background-color: #d35400; }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .droid-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 10px;
-            margin-bottom: 6px;
-            position: relative;
-            transition: all 0.25s ease;
-        }
-
-        .droid-card.fully-completed {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-glow), inset 0 0 5px var(--accent-glow);
-        }
-
-        .droid-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .droid-name {
-            font-weight: 800;
-            font-size: 15px;
-            letter-spacing: 0.5px;
-        }
-
-        .flawless-toggle-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .flawless-icon {
-            width: 22px;
-            height: auto;
-            opacity: 0.3;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-        }
-
-        .droid-card.flawless-active .flawless-icon {
-            opacity: 1;
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 4px #ffffff);
-        }
-
-        .variant-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 3px;
-        }
-
-        .variant-pill {
-            background-color: #000000;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .variant-pill.active-default { background-color: #4a5568; border-color: #718096; color: #fff; }
-        .variant-pill.active-gold { background-color: #d69e2e; border-color: #f6e05e; color: #1a202c; }
-        .variant-pill.active-diamond { background-color: #3182ce; border-color: #63b3ed; color: #fff; }
-        .variant-pill.active-rainbow { background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); border-color: #fff; color: #1a202c; font-weight: bold; }
-        .variant-pill.active-beskar { background-color: #718096; border-color: #e2e8f0; color: #fff; }
-        .variant-pill.active-galactic { background-color: #805ad5; border-color: #d53f8c; color: #fff; }
-
-        .droid-card.hidden-completed {
-            display: none !important;
-        }
-
-        .image-grid-small img {
-            width: 100%;
-            max-height: 90px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        .image-grid-small img:active {
-            transform: scale(0.96);
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 22px;
-        }
-
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #000000;
-            border: 1px solid var(--border-color);
-            transition: .3s;
-            border-radius: 22px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: #a0aec0;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--card-bg);
-            border-color: var(--accent-color);
-            box-shadow: 0 0 8px var(--accent-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(18px);
-            background-color: var(--accent-color);
-        }
+        .lightbox-content { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 10px; }
+        .lightbox-close { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: none; color: #fff; font-size: 28px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
     <div class="app-header">
-        <div class="header-actions">
-            <button class="icon-btn" onclick="toggleSearch()" title="Search Droids">🔍</button>
-            <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+        <img src="icon.png" alt="App Icon" class="app-icon" id="app-theme-icon">
+        <span class="app-title">DROID TRACKER</span>
+        <div class="top-action-icons">
+            <div class="icon-btn" onclick="toggleSearch()" title="Search Droids">&#128269;</div>
+            <div class="icon-btn" onclick="openSettings()" title="Settings">&#9881;</div>
         </div>
+    </div>
 
-        <div class="app-icon-container">
-            <img id="app-theme-icon" src="icon.png" alt="App Icon">
-        </div>
-        <h1>Droid Tracker</h1>
-
-        <div class="progress-rings-container">
-            <div class="progress-ring-card">
-                <div class="progress-ring">
-                    <svg viewBox="0 0 44 44">
-                        <circle class="progress-ring-bg" cx="22" cy="22" r="18"></circle>
-                        <circle class="progress-ring-fill" id="variants-ring-fill" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="113.1"></circle>
-                    </svg>
-                    <div class="progress-ring-text" id="variants-pct">0%</div>
-                </div>
-                <div class="progress-info">
-                    <span class="progress-label">DROIDS</span>
-                    <span class="progress-values" id="progress-counter">0 / 0</span>
-                </div>
+    <div class="dashboard-container">
+        <div class="dashboard-card">
+            <div class="dashboard-info">
+                <span class="dashboard-label">DROIDS</span>
+                <span class="dashboard-value" id="progress-counter">0 / 380</span>
+                <span class="dashboard-pct" id="variants-pct">0%</span>
             </div>
-
-            <div class="progress-ring-card">
-                <div class="progress-ring">
-                    <svg viewBox="0 0 44 44">
-                        <circle class="progress-ring-bg" cx="22" cy="22" r="18"></circle>
-                        <circle class="progress-ring-fill" id="flawless-ring-fill" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="113.1"></circle>
-                    </svg>
-                    <div class="progress-ring-text" id="flawless-pct">0%</div>
-                </div>
-                <div class="progress-info">
-                    <span class="progress-label">FLAWLESS</span>
-                    <span class="progress-values" id="flawless-counter">0 / 62</span>
-                </div>
-            </div>
+            <svg class="progress-ring" viewBox="0 0 40 40">
+                <circle class="progress-ring-bg" cx="20" cy="20" r="18"></circle>
+                <circle class="progress-ring-fill" id="variants-ring-fill" cx="20" cy="20" r="18"></circle>
+            </svg>
         </div>
+        <div class="dashboard-card">
+            <div class="dashboard-info">
+                <span class="dashboard-label">FLAWLESS</span>
+                <span class="dashboard-value" id="flawless-counter">0 / 62</span>
+                <span class="dashboard-pct" id="flawless-pct">0%</span>
+            </div>
+            <svg class="progress-ring" viewBox="0 0 40 40">
+                <circle class="progress-ring-bg" cx="20" cy="20" r="18"></circle>
+                <circle class="progress-ring-fill" id="flawless-ring-fill" cx="20" cy="20" r="18"></circle>
+            </svg>
+        </div>
+    </div>
+
+    <div class="tabs-grid">
+        <button class="tab-btn btn-common active" onclick="switchTab(event, 'commonTab')">Common</button>
+        <button class="tab-btn btn-rare" onclick="switchTab(event, 'rareTab')">Rare</button>
+        <button class="tab-btn btn-epic" onclick="switchTab(event, 'epicTab')">Epic</button>
+        <button class="tab-btn btn-legendary" onclick="switchTab(event, 'legendaryTab')">Legendary</button>
+        <button class="tab-btn btn-mythic" onclick="switchTab(event, 'mythicTab')">Mythic</button>
+        <button class="tab-btn btn-iconic" onclick="switchTab(event, 'iconicTab')">Iconic</button>
+        <button class="tab-btn btn-rebirth" onclick="switchTab(event, 'rebirthTab')">Rebirth</button>
+        <button class="tab-btn btn-deal" onclick="switchTab(event, 'dealTab')">Limited Deal</button>
     </div>
 
     <div class="search-container" id="search-container-wrapper">
-        <input type="text" id="droid-search" placeholder="Search droids..." oninput="filterDroids(this.value)">
+        <input type="text" id="droid-search" class="search-input" placeholder="Search droids by name..." oninput="filterDroids(this.value)">
     </div>
 
-    <div class="tab-container">
-        <button class="tab-btn btn-common active" onclick="switchTab(event, 'commonTab')">COMMON</button>
-        <button class="tab-btn btn-rare" onclick="switchTab(event, 'rareTab')">RARE</button>
-        <button class="tab-btn btn-epic" onclick="switchTab(event, 'epicTab')">EPIC</button>
-        <button class="tab-btn btn-legendary" onclick="switchTab(event, 'legendaryTab')">LEGENDARY</button>
-        <button class="tab-btn btn-mythic" onclick="switchTab(event, 'mythicTab')">MYTHIC</button>
-        <button class="tab-btn btn-iconic" onclick="switchTab(event, 'iconicTab')">ICONIC</button>
-        <button class="tab-btn btn-rebirth" onclick="switchTab(event, 'rebirthTab')">REBIRTH</button>
-        <button class="tab-btn btn-deal" onclick="switchTab(event, 'dealTab')">LIMITED DEAL</button>
-    </div>
-
-    <div id="commonTab" class="tab-content active"><div id="common-container"></div></div>
-    <div id="rareTab" class="tab-content"><div id="rare-container"></div></div>
-    <div id="epicTab" class="tab-content"><div id="epic-container"></div></div>
-    <div id="legendaryTab" class="tab-content"><div id="legendary-container"></div></div>
-    <div id="mythicTab" class="tab-content"><div id="mythic-container"></div></div>
-    <div id="iconicTab" class="tab-content"><div id="iconic-container"></div></div>
+    <div id="commonTab" class="tab-content active"><div id="common-container" style="display:flex; flex-direction:column; gap:10px;"></div></div>
+    <div id="rareTab" class="tab-content"><div id="rare-container" style="display:flex; flex-direction:column; gap:10px;"></div></div>
+    <div id="epicTab" class="tab-content"><div id="epic-container" style="display:flex; flex-direction:column; gap:10px;"></div></div>
+    <div id="legendaryTab" class="tab-content"><div id="legendary-container" style="display:flex; flex-direction:column; gap:10px;"></div></div>
+    <div id="mythicTab" class="tab-content"><div id="mythic-container" style="display:flex; flex-direction:column; gap:10px;"></div></div>
+    <div id="iconicTab" class="tab-content"><div id="iconic-container" style="display:flex; flex-direction:column; gap:10px;"></div></div>
     
     <div id="rebirthTab" class="tab-content">
-        <h2 style="font-size: 14px; margin-bottom: 8px;">Super Rebirth Tracker</h2>
-        <div class="super-rebirth-card" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <div class="sr-info">
-                <span class="sr-label" style="font-size: 9px; font-weight: bold; color: #a0aec0; text-transform: uppercase; display: block;">Super Rebirths</span>
-                <span class="sr-cycle-display" id="cycle-display" style="font-size: 12px; font-weight: bold;">Current: Cycle 1</span>
+        <div class="droid-card" style="align-items: center; text-align: center; padding: 20px;">
+            <span class="droid-name" style="font-size: 18px;">Super Rebirth Progress</span>
+            <div style="display: flex; align-items: center; gap: 16px; margin: 10px 0;">
+                <button class="icon-btn" onclick="adjustSuperRebirth(-1)" style="width: 44px; height: 44px; font-size: 22px;">-</button>
+                <span id="sr-count" style="font-size: 28px; font-weight: 800; color: #fff;">0</span>
+                <button class="icon-btn" onclick="adjustSuperRebirth(1)" style="width: 44px; height: 44px; font-size: 22px;">+</button>
             </div>
-            <div class="sr-control-group" style="display: flex; align-items: center; gap: 6px;">
-                <button class="sr-btn" onclick="adjustSuperRebirth(-1)" style="background: #000000; color: var(--text-color); border: 1px solid var(--border-color); width: 26px; height: 26px; border-radius: 5px; font-weight: bold; cursor: pointer;">-</button>
-                <span class="sr-value" id="sr-count" style="font-size: 13px; font-weight: bold; min-width: 18px; text-align: center;">0</span>
-                <button class="sr-btn" onclick="adjustSuperRebirth(1)" style="background: #000000; color: var(--text-color); border: 1px solid var(--border-color); width: 26px; height: 26px; border-radius: 5px; font-weight: bold; cursor: pointer;">+</button>
-            </div>
+            <span id="cycle-display" style="font-size: 14px; color: var(--accent-color); font-weight: 700; margin-bottom: 10px;">Current: Cycle 1</span>
+            <img id="active-cycle-img" src="rebirth-1.png" alt="Active Rebirth Cycle" style="width: 100%; max-width: 280px; border-radius: 10px; border: 2px solid var(--border-color); cursor: pointer;" onclick="openLightbox(this)">
+            
+            <span class="droid-name" style="font-size: 15px; margin-top: 15px;">Other Cycles</span>
+            <div id="other-cycles-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 5px;"></div>
         </div>
-
-        <h2 style="font-size: 14px; margin-bottom: 8px;">Active Cycle Preview</h2>
-        <div class="active-cycle-display-container" style="text-align: center; margin-bottom: 12px;">
-            <img id="active-cycle-img" src="rebirth-1.png" alt="Active Rebirth Cycle" onclick="openLightbox(this)" style="max-width: 100%; max-height: 180px; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer;">
-        </div>
-
-        <h2 style="font-size: 14px; margin-bottom: 8px;">Other Cycles</h2>
-        <div class="image-grid-small" id="other-cycles-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 20px;"></div>
     </div>
 
-    <!-- Limited Deal Tab -->
     <div id="dealTab" class="tab-content">
-        <h2 style="font-size: 14px; margin-bottom: 8px;">LIMITED DEAL</h2>
-        <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center;">
-            <div id="deal-info-container" style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">Loading live deal...</div>
-            <div id="deal-timer" style="font-size: 16px; font-weight: 800; color: var(--accent-color);">--:--:--</div>
+        <div class="droid-card" style="align-items: center; text-align: center; padding: 20px;">
+            <span class="droid-name" style="font-size: 18px;">Limited Deal</span>
+            <div id="deal-info-container" style="font-size: 14px; color: #fff; margin: 10px 0; font-weight: 600;">Loading live deal...</div>
+            <div id="deal-timer" style="font-size: 20px; font-weight: 800; color: var(--accent-color); letter-spacing: 1px;">--:--:--</div>
         </div>
     </div>
-        <!-- Settings Modal -->
-    <div id="settings-modal" class="lightbox-modal" onclick="closeSettingsOnBackdrop(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;">
-        <div class="settings-content" onclick="event.stopPropagation()" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; width: 85%; max-width: 350px; box-sizing: border-box;">
-            <div class="settings-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="margin: 0; font-size: 14px;">Settings & Customization</h3>
-                <span class="close-btn-modal" onclick="closeSettings()" style="font-size: 20px; cursor: pointer; color: #a0aec0;">&times;</span>
-            </div>
 
-            <div class="setting-group" style="margin-bottom: 12px;">
-                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">App Theme</h3>
-                <div class="theme-buttons" style="display: grid; grid-template-columns: 1fr; gap: 5px;">
-                    <button class="theme-btn" id="theme-default" onclick="setTheme('default')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Default</button>
-                    <button class="theme-btn" id="theme-mandalorian" onclick="setTheme('mandalorian')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Mandalorian</button>
-                    <button class="theme-btn" id="theme-sith" onclick="setTheme('sith')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Sith</button>
-                    <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')" style="background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">Jedi</button>
-                </div>
+    <div class="settings-modal" id="settings-modal" onclick="closeSettingsOnBackdrop(event)">
+        <div class="settings-content">
+            <div class="settings-header">
+                <span>Settings</span>
+                <button class="settings-close" onclick="closeSettings()">&times;</button>
             </div>
-
-            <div class="setting-group" style="margin-bottom: 12px;">
-                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Display Preferences</h3>
-                <div class="setting-row" style="display: flex; justify-content: space-between; align-items: center; background-color: #000000; border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 6px; margin-bottom: 6px;">
-                    <span style="font-size: 11px; font-weight: bold;">Hide Completed Droids</span>
-                    <label class="switch">
-                        <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted(this)">
-                        <span class="slider"></span>
-                   </label>
+            <div class="settings-section">
+                <span class="settings-section-title">Theme Selection</span>
+                <div class="theme-buttons">
+                    <button class="theme-btn" id="theme-default" onclick="setTheme('default')">Default</button>
+                    <button class="theme-btn" id="theme-sith" onclick="setTheme('sith')">Sith</button>
+                    <button class="theme-btn" id="theme-jedi" onclick="setTheme('jedi')">Jedi</button>
+                    <button class="theme-btn" id="theme-mandalorian" onclick="setTheme('mandalorian')">Mandalorian</button>
                 </div>
             </div>
-
-            <div class="setting-group" style="margin-bottom: 12px;">
-                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Notifications</h3>
-                <div class="setting-row" style="display: flex; justify-content: space-between; align-items: center; background-color: #000000; border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 6px; margin-bottom: 6px;">
-                    <span style="font-size: 11px; font-weight: bold;">Deal Alert Notifications</span>
-                    <label class="switch">
-                        <input type="checkbox" id="deal-notifications-toggle" onchange="toggleDealNotifications(this)">
-                        <span class="slider"></span>
-                   </label>
+            <div class="settings-section">
+                <span class="settings-section-title">Preferences</span>
+                <div class="settings-option-row">
+                    <span>Hide Completed Droids</span>
+                    <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted(this)" style="width: 20px; height: 20px; accent-color: var(--accent-color); cursor: pointer;">
+                </div>
+                <div class="settings-option-row">
+                    <span>Limited Deal Notifications</span>
+                    <input type="checkbox" id="deal-notifications-toggle" onchange="toggleDealNotifications(this)" style="width: 20px; height: 20px; accent-color: var(--accent-color); cursor: pointer;">
                 </div>
             </div>
-
-            <div class="setting-group" style="margin-bottom: 4px;">
-                <h3 style="font-size: 11px; color: #a0aec0; margin-bottom: 4px;">Data Management</h3>
-                <div class="backup-actions" style="display: flex; gap: 6px; margin-bottom: 6px;">
-                    <button class="backup-btn" onclick="exportDataFile()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Export Save</button>
-                    <button class="backup-btn" onclick="triggerImportFile()" style="flex: 1; background-color: #000000; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px; border-radius: 5px; font-weight: bold; font-size: 10px; cursor: pointer;">Import Save</button>
-                    <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importDataFile(event)">
+            <div class="settings-section">
+                <span class="settings-section-title">Data Backup & Recovery</span>
+                <div class="settings-btn-row">
+                    <button class="settings-action-btn" onclick="exportDataFile()">Export Backup</button>
+                    <button class="settings-action-btn" onclick="triggerImportFile()">Import Backup</button>
+                    <input type="file" id="import-file-input" style="display:none" accept=".json" onchange="importDataFile(event)">
                 </div>
-                <div class="backup-status-text" id="backup-status-text" style="font-size: 10px; color: #a0aec0; margin-bottom: 6px;">
-                    Last Exported: Never
+                <span id="backup-status-text" style="font-size: 11px; color: #888; text-align: center; margin-top: 4px;">Last Exported: Never</span>
+            </div>
+            <div class="settings-section">
+                <span class="settings-section-title">Danger Zone</span>
+                <div class="settings-btn-row">
+                    <button class="settings-action-btn danger" onclick="confirmResetData()">Reset All Progress</button>
                 </div>
-                <button class="reset-data-btn" onclick="confirmResetData()" style="width: 100%; padding: 6px; background-color: #e53e3e; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer;">
-                    Reset All Progress
-                </button>
             </div>
         </div>
     </div>
 
-    <div id="lightbox" class="lightbox-modal" onclick="closeLightbox()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;">
-        <span class="close-btn" onclick="closeLightbox()" style="position: absolute; top: 15px; right: 20px; font-size: 30px; color: #fff; cursor: pointer;">&times;</span>
-        <img id="lightbox-img" src="" alt="Zoomed Rebirth Image" style="max-width: 90%; max-height: 80vh; border-radius: 6px; border: 1px solid var(--border-color);">
+    <div class="lightbox-modal" id="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close">&times;</button>
+        <img class="lightbox-content" id="lightbox-img">
     </div>
         <script>
         const APP_VERSION = "2.8.3";
@@ -631,7 +342,10 @@
         }
 
         function fetchLiveDeal() {
-            fetch('https://gonk.tools/api/droid-alerts/limited-deal')
+            const targetUrl = 'https://gonk.tools/api/droid-alerts/limited-deal';
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
+
+            fetch(proxyUrl)
                 .then(res => res.json())
                 .then(data => {
                     const deal = data.deal || data;
