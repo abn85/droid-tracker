@@ -1,0 +1,26 @@
+name: Check Droid Deals
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Runs every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  check-deal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Limited Deal and Notify
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Fetch current deal data
+          RESPONSE=$(curl -s "https://gonk.tools/api/droid-alerts/limited-deal")
+          
+          echo "API Response: $RESPONSE"
+          
+          # Send payload to Discord webhook to trigger your phone alert
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"🚨 **New Droid Deal Alert!** 🚨\n\`\`\`json\n$RESPONSE\n\`\`\`\"}" \
+               "$DISCORD_WEBHOOK"
+               
