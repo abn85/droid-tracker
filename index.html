@@ -46,7 +46,7 @@
             --accent-glow: rgba(46, 204, 113, 0.4);
             --header-gradient: linear-gradient(135deg, #2ecc71, #3498db);
         }
-        body {
+                body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -156,8 +156,7 @@
             border-radius: 6px;
             border: 1px solid var(--border-color);
         }
-
-        .progress-rings-container {
+                .progress-rings-container {
             display: flex;
             justify-content: center;
             gap: 12px;
@@ -493,7 +492,7 @@
     <div id="legendaryTab" class="tab-content"><div id="legendary-container"></div></div>
     <div id="mythicTab" class="tab-content"><div id="mythic-container"></div></div>
     <div id="iconicTab" class="tab-content"><div id="iconic-container"></div></div>
-        <div id="rebirthTab" class="tab-content">
+    <div id="rebirthTab" class="tab-content">
         <h2 style="font-size: 14px; margin-bottom: 8px;">Super Rebirth Tracker</h2>
         <div class="super-rebirth-card" style="background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
             <div class="sr-info">
@@ -680,7 +679,14 @@
         function processDealData(data) {
             const statusText = document.getElementById('deal-status-text');
             const dealObj = data.deal || data;
-            const newDealName = dealObj.dealName || dealObj.name || dealObj.title || "Active Deal";
+            
+            // Fixed live deal name extraction to support nested structures or string property fallbacks
+            let newDealName = "Active Deal";
+            if (typeof dealObj === 'string') {
+                newDealName = dealObj;
+            } else if (dealObj) {
+                newDealName = dealObj.dealName || dealObj.name || dealObj.title || dealObj.droid || dealObj.droidName || (dealObj.item && (dealObj.item.name || dealObj.item.title)) || "Active Deal";
+            }
             
             if (currentDealData && currentDealData !== newDealName) {
                 triggerDealNotification(newDealName);
