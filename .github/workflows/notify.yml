@@ -9,10 +9,16 @@ jobs:
   check-deal:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch Deal and Notify
+      - name: Fetch API Data
+        id: fetch-data
+        run: |
+          DEAL=$(curl -s https://gonk.tools/api/droid-alerts/limited-deal)
+          echo "deal_data=$DEAL" >> $GITHUB_OUTPUT
+
+      - name: Send Discord Notification
         uses: Ilshidur/action-discord@master
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:
-          args: "🚨 **New Droid Deal Alert!** 🚨\n```json\n$(curl -s [https://gonk.tools/api/droid-alerts/limited-deal](https://gonk.tools/api/droid-alerts/limited-deal))\n```"
+          args: "🚨 **New Droid Deal Alert!** 🚨\n```json\n${{ steps.fetch-data.outputs.deal_data }}\n```"
           
