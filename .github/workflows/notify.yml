@@ -9,16 +9,39 @@ jobs:
   check-deal:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch API Data
-        id: fetch-data
+      - name: Fetch and Parse Deal
+        id: parse-deal
         run: |
-          DEAL=$(curl -s https://gonk.tools/api/droid-alerts/limited-deal)
-          echo "deal_data=$DEAL" >> $GITHUB_OUTPUT
+          # Fetch JSON
+          RAW_JSON=$(curl -s https://gonk.tools/api/droid-alerts/limited-deal)
+          echo "raw=$RAW_JSON"
+          
+          # Use python to extract specific fields and format them cleanly
+          FORMATTED_MSG=$(python3 -c '
+import json, sys
+data = json.loads("""'"$RAW_JSON"'""")
+deal = data.get("deal", {})
+
+droid = deal.get("droid", "Unknown")
+mutation = deal.get("mutation", "Standard")
+rarity = deal.get("rarity", "Unknown")
+starts = deal.get("startsAt", "N/A")
+ends = deal.get("endsAt", "N/A")
+
+msg = f"🚨 **New Droid Deal Alert!** 🚨\n• **Droid:** {droid}\n• **Variant/Mutation:** {mutation}\n• **Rarity:** {rarity}\n• **Starts:** {starts}\n• **Ends:** {ends}"
+print(msg)
+          ')
+          
+          # Multi-line output handling for GitHub Actions
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "message<<$EOF" >> $GITHUB_OUTPUT
+          echo "$FORMATTED_MSG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Send Discord Notification
         uses: Ilshidur/action-discord@master
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:
-          args: "🚨 **New Droid Deal Alert!** 🚨\n```json\n${{ steps.fetch-data.outputs.deal_data }}\n```"
+          args: "${{ steps.parse-deal.outputs.message }}"
           
